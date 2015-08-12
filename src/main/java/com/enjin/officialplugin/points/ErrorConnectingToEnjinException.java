@@ -10,6 +10,7 @@ public class ErrorConnectingToEnjinException extends Exception
     this.message = string;
   }
 
+  @Override
   public String getMessage()
   {
     return this.message;

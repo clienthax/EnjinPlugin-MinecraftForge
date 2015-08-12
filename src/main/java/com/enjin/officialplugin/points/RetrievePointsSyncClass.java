@@ -19,6 +19,7 @@ public class RetrievePointsSyncClass
     this.self = self;
   }
 
+  @Override
   public synchronized void run()
   {
     try {

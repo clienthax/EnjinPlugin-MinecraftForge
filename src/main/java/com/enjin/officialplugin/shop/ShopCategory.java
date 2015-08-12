@@ -20,6 +20,7 @@ public class ShopCategory extends AbstractShopSuperclass
     this.id = id;
   }
 
+  @Override
   public void addItem(AbstractShopSuperclass item)
     throws ItemTypeNotSupported
   {
@@ -37,10 +38,12 @@ public class ShopCategory extends AbstractShopSuperclass
     }
   }
 
+  @Override
   public ArrayList<AbstractShopSuperclass> getItems() {
     return this.items;
   }
 
+  @Override
   public AbstractShopSuperclass getItem(int i) {
     try {
       return (AbstractShopSuperclass)this.items.get(i); } catch (Exception e) {
@@ -57,6 +60,7 @@ public class ShopCategory extends AbstractShopSuperclass
     this.id = id;
   }
 
+  @Override
   public String getName() {
     return this.name;
   }
@@ -65,6 +69,7 @@ public class ShopCategory extends AbstractShopSuperclass
     this.name = name;
   }
 
+  @Override
   public String getInfo() {
     return this.info;
   }
@@ -73,29 +78,35 @@ public class ShopCategory extends AbstractShopSuperclass
     this.info = info;
   }
 
+  @Override
   public ServerShop.Type getType() {
     return this.type;
   }
 
+  @Override
   public void setType(ServerShop.Type type) {
     this.type = type;
   }
 
+  @Override
   public ShopItemAdder getParentCategory()
   {
     return this.parentcategory;
   }
 
+  @Override
   public void setParentCategory(ShopItemAdder cat)
   {
     this.parentcategory = cat;
   }
 
+  @Override
   public void setPages(ArrayList<ArrayList<String>> pages)
   {
     this.pages = pages;
   }
 
+  @Override
   public ArrayList<ArrayList<String>> getPages()
   {
     return this.pages;

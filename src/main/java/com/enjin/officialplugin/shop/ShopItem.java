@@ -10,7 +10,7 @@ public class ShopItem extends AbstractShopSuperclass
   String info = "";
   String points = "";
 
-  ArrayList<ShopItemOptions> options = new ArrayList();
+  ArrayList<ShopItemOptions> options = new ArrayList<ShopItemOptions>();
 
   public ShopItem(String name, String id, String price, String info, String points) {
     this.name = name;
@@ -46,7 +46,7 @@ public class ShopItem extends AbstractShopSuperclass
 
   public ShopItemOptions getOption(int i) {
     try {
-      return (ShopItemOptions)this.options.get(i); } catch (Exception e) {
+      return this.options.get(i); } catch (Exception e) {
     }
     return null;
   }

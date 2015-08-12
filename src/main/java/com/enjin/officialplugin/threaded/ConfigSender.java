@@ -30,6 +30,7 @@ public class ConfigSender implements Runnable {
 		this.plugin = plugin;
 	}
 
+	@Override
 	public void run() {
 		if ((EnjinMinecraftPlugin.usingSSL) && (!this.plugin.testHTTPSconnection())) {
 			EnjinMinecraftPlugin.usingSSL = false;

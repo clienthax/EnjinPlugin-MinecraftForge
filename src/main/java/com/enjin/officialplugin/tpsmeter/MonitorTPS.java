@@ -7,7 +7,7 @@ public class MonitorTPS
   implements Runnable
 {
   private long lasttime = System.currentTimeMillis();
-  private LinkedList<Double> tpslist = new LinkedList();
+  private LinkedList<Double> tpslist = new LinkedList<Double>();
   private int tickmeasurementinterval = 40;
   EnjinMinecraftPlugin plugin;
   private int maxentries = 25;
@@ -16,6 +16,7 @@ public class MonitorTPS
     this.plugin = plugin;
   }
 
+  @Override
   public synchronized void run()
   {
     long currenttime = System.currentTimeMillis();
@@ -43,7 +44,7 @@ public class MonitorTPS
 
   public double getLastTPSMeasurement() {
     if (this.tpslist.size() > 0) {
-      return ((Double)this.tpslist.getLast()).doubleValue();
+      return this.tpslist.getLast();
     }
     return -1.0D;
   }
@@ -51,6 +52,6 @@ public class MonitorTPS
   public void clearTPS() {
     double lastmeasurement = getLastTPSMeasurement();
     this.tpslist.clear();
-    this.tpslist.add(Double.valueOf(lastmeasurement));
+    this.tpslist.add(lastmeasurement);
   }
 }

@@ -1,6 +1,7 @@
 package com.enjin.officialplugin.shop;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 
 import org.json.simple.JSONArray;
@@ -20,7 +21,7 @@ public class ShopUtils
   public static byte[] glyphWidth = null;
 
   public static ArrayList<String> parseHistoryJSON(String json, String playername) {
-    ArrayList lines = new ArrayList();
+    ArrayList<String> lines = new ArrayList<String>();
     String topline = ChatColor.GRAY + "+++ " + ChatColor.WHITE + "Purchase history for " + playername + ChatColor.GRAY + " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++";
 
     lines.add(TrimText(topline, null));
@@ -40,16 +41,14 @@ public class ShopUtils
             String itemname = (String)item.get("item_name");
             String purchasedate = (String)item.get("purchase_date");
             String expires = (String)item.get("expires");
-            String itemline = "";
+            String itemline;
             if (expires.equals(""))
               itemline = i + ". " + itemname + " (purchased on " + purchasedate + ")";
             else {
               itemline = i + ". " + itemname + " (purchased on " + purchasedate + ") - " + expires;
             }
             String[] itemlines = WrapText(itemline, "+   ", "7", "f", 3);
-            for (String line : itemlines) {
-              lines.add(line);
-            }
+            Collections.addAll(lines, itemlines);
             i++;
           } }
       }
@@ -93,12 +92,12 @@ public class ShopUtils
           newshop.setInfo((String)shop.get("info"));
           Boolean simpleitems = (Boolean)shop.get("simpleitems");
           if (simpleitems != null) {
-            newshop.setSimpleItems(simpleitems.booleanValue());
+            newshop.setSimpleItems(simpleitems);
           }
           Boolean simplecategories = (Boolean)shop.get("simplecategories");
 
           if (simplecategories != null) {
-            newshop.setSimplecategories(simplecategories.booleanValue());
+            newshop.setSimplecategories(simplecategories);
           }
           Object items = shop.get("items");
           Object categories = shop.get("categories");
@@ -124,30 +123,26 @@ public class ShopUtils
   private static void addCategories(ShopItemAdder shop, JSONArray shopcategories)
   {
     shop.setType(ServerShop.Type.Category);
-    for (Iterator i$ = shopcategories.iterator(); i$.hasNext(); ) { Object ocategory = i$.next();
-      JSONObject category = (JSONObject)ocategory;
-      ShopCategory scategory = new ShopCategory((String)category.get("name"), (String)category.get("id"));
+    for (Object ocategory : shopcategories) {
+      JSONObject category = (JSONObject) ocategory;
+      ShopCategory scategory = new ShopCategory((String) category.get("name"), (String) category.get("id"));
 
       if ((shop instanceof ShopCategory)) {
         scategory.setParentCategory(shop);
       }
-      scategory.setInfo((String)category.get("info"));
+      scategory.setInfo((String) category.get("info"));
       Object items = category.get("items");
       Object categories = category.get("categories");
-      if ((items != null) && ((items instanceof JSONArray)) && (((JSONArray)items).size() > 0))
-      {
-        addItems(scategory, (JSONArray)items);
-      } else if ((categories != null) && ((categories instanceof JSONArray)) && (((JSONArray)categories).size() > 0))
-      {
-        addCategories(scategory, (JSONArray)categories);
+      if ((items != null) && ((items instanceof JSONArray)) && (((JSONArray) items).size() > 0)) {
+        addItems(scategory, (JSONArray) items);
+      } else if ((categories != null) && ((categories instanceof JSONArray)) && (((JSONArray) categories).size() > 0)) {
+        addCategories(scategory, (JSONArray) categories);
       }
 
       if (scategory.getItems().size() > 0)
         try {
           shop.addItem(scategory);
-        }
-        catch (ItemTypeNotSupported e)
-        {
+        } catch (ItemTypeNotSupported e) {
         }
     }
   }
@@ -155,29 +150,26 @@ public class ShopUtils
   private static void addItems(ShopItemAdder shop, JSONArray shopitems)
   {
     shop.setType(ServerShop.Type.Item);
-    for (Iterator i$ = shopitems.iterator(); i$.hasNext(); ) { Object oitem = i$.next();
-      JSONObject item = (JSONObject)oitem;
-      ShopItem sitem = new ShopItem((String)item.get("name"), (String)item.get("id"), getPriceString(item.get("price")), (String)item.get("info"), getPointsString(item.get("points")));
+    for (Object oitem : shopitems) {
+      JSONObject item = (JSONObject) oitem;
+      ShopItem sitem = new ShopItem((String) item.get("name"), (String) item.get("id"), getPriceString(item.get("price")), (String) item.get("info"), getPointsString(item.get("points")));
 
       Object options = item.get("variables");
-      if ((options != null) && ((options instanceof JSONArray)) && (((JSONArray)options).size() > 0))
-      {
-        JSONArray joptions = (JSONArray)options;
+      if ((options != null) && ((options instanceof JSONArray)) && (((JSONArray) options).size() > 0)) {
+        JSONArray joptions = (JSONArray) options;
 
-        Iterator optionsiterator = joptions.iterator();
-        while (optionsiterator.hasNext()) {
-          JSONObject option = (JSONObject)optionsiterator.next();
-          ShopItemOptions soptions = new ShopItemOptions((String)option.get("name"), getPriceString(option.get("pricemin")), getPriceString(option.get("pricemax")), getPointsString(option.get("pointsmin")), getPointsString(option.get("pointsmax")));
+        for (Object joption : joptions) {
+          JSONObject option = (JSONObject) joption;
+          ShopItemOptions soptions = new ShopItemOptions((String) option.get("name"), getPriceString(option.get("pricemin")), getPriceString(option.get("pricemax")), getPointsString(option.get("pointsmin")), getPointsString(option.get("pointsmax")));
 
           sitem.addOption(soptions);
         }
       }
       try {
         shop.addItem(sitem);
+      } catch (ItemTypeNotSupported e) {
       }
-      catch (ItemTypeNotSupported e)
-      {
-      } }
+    }
   }
 
   public static String formatPrice(String price, String currency)
@@ -209,7 +201,7 @@ public class ShopUtils
       }
       return "FREE - " + formatPrice(item.getMaxPrice(), currency);
     }
-    if ((item.getMinPrice() == null) || (item.getMinPrice().equals("")))
+    if ((item.getMinPrice().equals("")))
       return formatPrice(item.getMaxPrice(), currency);
     if ((item.getMaxPrice().equals("0.00")) || (item.getMaxPrice().equals("0")))
     {
@@ -220,11 +212,9 @@ public class ShopUtils
 
   public static ArrayList<ArrayList<String>> formatPages(ServerShop shop, ShopItemAdder itemcategory)
   {
-    ArrayList pages = new ArrayList();
-
-    ArrayList header = new ArrayList();
-
-    ArrayList footer = new ArrayList();
+    ArrayList<ArrayList<String>> pages = new ArrayList<ArrayList<String>>();
+    ArrayList<String> header = new ArrayList<String>();
+    ArrayList<String> footer = new ArrayList<String>();
 
     boolean collapsed = false;
     String verticalborder = "";
@@ -245,9 +235,7 @@ public class ShopUtils
       {
         String[] info = WrapText(itemcategory.getInfo(), shop.getColortext(), 6);
 
-        for (String sinfo : info) {
-          header.add(sinfo);
-        }
+        Collections.addAll(header, info);
       }
       if (itemcategory.getType() == ServerShop.Type.Category) {
         header.add(FORMATTING_CODE + shop.getColortext() + "Prices are in " + shop.getCurrency() + ". Choose a category with " + FORMATTING_CODE + shop.getColorbottom() + "/" + EnjinMinecraftPlugin.BUY_COMMAND + " <#>");
@@ -264,9 +252,9 @@ public class ShopUtils
       if (first4chars.length() > 4) {
         first4chars = first4chars.substring(0, 4);
       }
-      topline.append(FORMATTING_CODE + shop.getColorborder() + first4chars);
+      topline.append(FORMATTING_CODE).append(shop.getColorborder()).append(first4chars);
       if (itemcategory.getParentCategory() != null) {
-        topline.append("[ " + FORMATTING_CODE + shop.getColortitle() + itemcategory.getParentCategory().getName() + " - " + itemcategory.getName() + FORMATTING_CODE + shop.getColorborder() + " ]");
+        topline.append("[ ").append(FORMATTING_CODE).append(shop.getColortitle()).append(itemcategory.getParentCategory().getName()).append(" - ").append(itemcategory.getName()).append(FORMATTING_CODE).append(shop.getColorborder()).append(" ]");
 
         String toplinetrimmed = TrimText(topline.toString(), "... " + FORMATTING_CODE + shop.getColorborder() + "]");
 
@@ -280,11 +268,11 @@ public class ShopUtils
           header.add(toplinetrimmed);
         }
       } else {
-        topline.append(" " + FORMATTING_CODE + shop.getColortitle() + itemcategory.getName());
+        topline.append(" ").append(FORMATTING_CODE).append(shop.getColortitle()).append(itemcategory.getName());
 
         String toplinetrimmed = TrimText(topline.toString(), "...");
         if (!toplinetrimmed.endsWith("...")) {
-          topline.append(FORMATTING_CODE + shop.getColorborder() + " ");
+          topline.append(FORMATTING_CODE).append(shop.getColorborder()).append(" ");
 
           for (int i = 0; i < 40; i++) {
             topline.append(shop.getBorder_h());
@@ -302,9 +290,7 @@ public class ShopUtils
       {
         String[] info = WrapText(itemcategory.getInfo(), shop.getBorder_v(), shop.getColorborder(), shop.getColortext(), 6);
 
-        for (String sinfo : info) {
-          header.add(sinfo);
-        }
+        Collections.addAll(header, info);
       }
 
       if (shop.getType() == ServerShop.Type.Category) {
@@ -347,9 +333,9 @@ public class ShopUtils
     }
     int onitem = 0;
     for (int i = 0; i < numofpages; i++) {
-      ArrayList currentpage = new ArrayList();
-      for (int j = 0; j < header.size(); j++) {
-        currentpage.add(header.get(j));
+      ArrayList<String> currentpage = new ArrayList<String>();
+      for (String aHeader : header) {
+        currentpage.add(aHeader);
       }
       int j = 0;
       for (; (j < itemsperpage) && (onitem < itemcategory.getItems().size()); onitem++)
@@ -362,16 +348,15 @@ public class ShopUtils
           itemstring = formatShortItem(shop, itemcategory.getItem(onitem), onitem);
         }
 
-        for (int k = 0; k < itemstring.length; k++)
-          currentpage.add(itemstring[k]);
+        Collections.addAll(currentpage, itemstring);
         j++;
       }
 
       for (int k = currentpage.size(); k < 20 - (footer.size() + 1); k++) {
         currentpage.add(verticalborder + " ");
       }
-      for (int l = 0; l < footer.size(); l++) {
-        currentpage.add(footer.get(l));
+      for (String aFooter : footer) {
+        currentpage.add(aFooter);
       }
 
       if (collapsed) {
@@ -380,9 +365,9 @@ public class ShopUtils
       else
       {
         StringBuilder bottomline = new StringBuilder(50);
-        bottomline.append(FORMATTING_CODE + shop.getColorborder());
+        bottomline.append(FORMATTING_CODE).append(shop.getColorborder());
         bottomline.append(first4chars);
-        bottomline.append(FORMATTING_CODE + shop.getColorbottom() + " Type /" + EnjinMinecraftPlugin.BUY_COMMAND + " page # " + FORMATTING_CODE + shop.getColorborder());
+        bottomline.append(FORMATTING_CODE).append(shop.getColorbottom()).append(" Type /").append(EnjinMinecraftPlugin.BUY_COMMAND).append(" page # ").append(FORMATTING_CODE).append(shop.getColorborder());
 
         for (int p = 0; p < 40; p++) {
           bottomline.append(shop.getBorder_h());
@@ -402,7 +387,7 @@ public class ShopUtils
 
   public static ArrayList<String> getItemDetailsPage(ServerShop shop, ShopItem item)
   {
-    ArrayList itempage = new ArrayList();
+    ArrayList<String> itempage = new ArrayList<String>();
     boolean collapsed = false;
 
     String first4chars = "";
@@ -423,12 +408,12 @@ public class ShopUtils
       verticalborder = FORMATTING_CODE + shop.getColorborder() + shop.getBorder_v();
 
       StringBuilder topline = new StringBuilder(50);
-      topline.append(FORMATTING_CODE + shop.getColorborder() + first4chars);
-      topline.append(" " + FORMATTING_CODE + shop.getColortitle() + item.getName() + FORMATTING_CODE + shop.getColorborder() + " ");
+      topline.append(FORMATTING_CODE).append(shop.getColorborder()).append(first4chars);
+      topline.append(" ").append(FORMATTING_CODE).append(shop.getColortitle()).append(item.getName()).append(FORMATTING_CODE).append(shop.getColorborder()).append(" ");
 
       String toplinetrimmed = TrimText(topline.toString(), "...");
       if (!toplinetrimmed.endsWith("...")) {
-        topline.append(FORMATTING_CODE + shop.getColorborder() + " ");
+        topline.append(FORMATTING_CODE).append(shop.getColorborder()).append(" ");
         for (int i = 0; i < 40; i++) {
           topline.append(shop.getBorder_h());
         }
@@ -442,15 +427,15 @@ public class ShopUtils
 
     if (item.getOptions().size() > 0) {
       StringBuilder options = new StringBuilder();
-      options.append(FORMATTING_CODE + shop.getColortext() + "Options: ");
+      options.append(FORMATTING_CODE).append(shop.getColortext()).append("Options: ");
       for (int i = 0; i < item.getOptions().size(); i++) {
         if (i > 0) {
           options.append(", ");
         }
         ShopItemOptions option = item.getOption(i);
-        options.append(FORMATTING_CODE + shop.getColorname() + option.getName() + FORMATTING_CODE + shop.getColorbracket() + " (");
+        options.append(FORMATTING_CODE).append(shop.getColorname()).append(option.getName()).append(FORMATTING_CODE).append(shop.getColorbracket()).append(" (");
 
-        options.append(FORMATTING_CODE + shop.getColorprice() + formatPrice(option, shop.getCurrency()) + FORMATTING_CODE + shop.getColorbracket() + ")");
+        options.append(FORMATTING_CODE).append(shop.getColorprice()).append(formatPrice(option, shop.getCurrency())).append(FORMATTING_CODE).append(shop.getColorbracket()).append(")");
       }
 
       ArrayList<String> optionlines = WrapFormattedText(verticalborder, options.toString());
@@ -467,9 +452,7 @@ public class ShopUtils
       infolines = WrapText(item.getInfo(), shop.getBorder_v(), shop.getColorborder(), shop.getColorinfo(), 10);
     }
 
-    for (String infoline : infolines) {
-      itempage.add(infoline);
-    }
+    Collections.addAll(itempage, infolines);
 
     for (int i = itempage.size(); i < 15; i++) {
       itempage.add(verticalborder + " ");
@@ -484,9 +467,9 @@ public class ShopUtils
     }
     else {
       StringBuilder bottomline = new StringBuilder(50);
-      bottomline.append(FORMATTING_CODE + shop.getColorborder() + first4chars);
-      bottomline.append(" " + FORMATTING_CODE + shop.getColorbottom() + "Click the item link to purchase" + FORMATTING_CODE + shop.getColorborder() + " ");
-      bottomline.append(FORMATTING_CODE + shop.getColorborder() + " ");
+      bottomline.append(FORMATTING_CODE).append(shop.getColorborder()).append(first4chars);
+      bottomline.append(" ").append(FORMATTING_CODE).append(shop.getColorbottom()).append("Click the item link to purchase").append(FORMATTING_CODE).append(shop.getColorborder()).append(" ");
+      bottomline.append(FORMATTING_CODE).append(shop.getColorborder()).append(" ");
       for (int i = 0; i < 40; i++) {
         bottomline.append(shop.getBorder_h());
       }
@@ -497,7 +480,7 @@ public class ShopUtils
   }
 
   public static ArrayList<String> getShopListing(PlayerShopsInstance shops) {
-    ArrayList shopoutput = new ArrayList();
+    ArrayList<String> shopoutput = new ArrayList<String>();
     shopoutput.add(ChatColor.WHITE + "=== Choose Shop ===");
     shopoutput.add(ChatColor.WHITE + "Please type " + ChatColor.YELLOW + "/" + EnjinMinecraftPlugin.BUY_COMMAND + " shop <#>");
 
@@ -513,12 +496,11 @@ public class ShopUtils
   }
 
   public static ArrayList<String> WrapFormattedText(String prefix, String text) {
-    ArrayList output = new ArrayList();
-    String fullline = text;
-    if (getWidth(prefix + fullline) > MINECRAFT_CONSOLE_WIDTH) {
+    ArrayList<String> output = new ArrayList<String>();
+    if (getWidth(prefix + text) > MINECRAFT_CONSOLE_WIDTH) {
       int index = 0;
-      while (index < fullline.length() - 1) {
-        String line = fullline.substring(index);
+      while (index < text.length() - 1) {
+        String line = text.substring(index);
         while (getWidth(prefix + line) > MINECRAFT_CONSOLE_WIDTH) {
           if (line.lastIndexOf(' ') > 0) {
             line = line.substring(0, line.lastIndexOf(' ')); continue;
@@ -527,9 +509,9 @@ public class ShopUtils
         }
 
         if (index > 0) {
-          int lastformattingcode = fullline.lastIndexOf(FORMATTING_CODE, index);
+          int lastformattingcode = text.lastIndexOf(FORMATTING_CODE, index);
 
-          String textcolor = fullline.substring(lastformattingcode + 1, lastformattingcode + 2);
+          String textcolor = text.substring(lastformattingcode + 1, lastformattingcode + 2);
 
           output.add(prefix + FORMATTING_CODE + textcolor + line);
         } else {
@@ -547,8 +529,6 @@ public class ShopUtils
     if (text == null) {
       return 0;
     }
-    String cleanedtext = ChatColor.stripColor(text);
-    cleanedtext = cleanedtext.replace(FORMATTING_CODE, "");
     if (glyphWidth == null) {
       setupGlyphArrays();
     }
@@ -710,7 +690,7 @@ public class ShopUtils
   public static String[] WrapText(String text, String prefix, String prefixcolor, String textcolor, int numlines)
   {
     String[] lines = text.split("\n");
-    ArrayList formattedlines = new ArrayList();
+    ArrayList<String> formattedlines = new ArrayList<String>();
     for (int i = 0; (i < lines.length) && (formattedlines.size() < numlines); i++) {
       String fullline = lines[i];
       if (getWidth(prefix + fullline) + (prefix + fullline).length() > MINECRAFT_CONSOLE_WIDTH) {
@@ -747,14 +727,14 @@ public class ShopUtils
 
     String[] returnarray = new String[formattedlines.size()];
     for (int i = 0; i < returnarray.length; i++) {
-      returnarray[i] = ((String)formattedlines.get(i));
+      returnarray[i] = formattedlines.get(i);
     }
     return returnarray;
   }
 
   public static String[] WrapText(String text, String textcolor, int numlines) {
     String[] lines = text.split("\n");
-    ArrayList formattedlines = new ArrayList();
+    ArrayList<String> formattedlines = new ArrayList<String>();
     for (int i = 0; (i < lines.length) && (formattedlines.size() < 6); i++) {
       String fullline = lines[i];
       if (getWidth(fullline) > MINECRAFT_CONSOLE_WIDTH) {
@@ -789,7 +769,7 @@ public class ShopUtils
     }
     String[] returnarray = new String[formattedlines.size()];
     for (int i = 0; i < returnarray.length; i++) {
-      returnarray[i] = ((String)formattedlines.get(i));
+      returnarray[i] = formattedlines.get(i);
     }
     return returnarray;
   }
@@ -842,7 +822,7 @@ public class ShopUtils
       else {
         price = Float.toString(((Float)object).floatValue());
       }
-      if (price.indexOf(".") > -1) {
+      if (price.contains(".")) {
         String[] split = price.split("\\.");
         if (split.length > 1) {
           if (split[0].equals(""))
@@ -882,7 +862,7 @@ public class ShopUtils
       else {
         points = Float.toString(((Float)object).floatValue());
       }
-      if (points.indexOf(".") > -1) {
+      if (points.contains(".")) {
         String[] split = points.split("\\.");
         if (split.length > 1) {
           if (split[0].equals(""))

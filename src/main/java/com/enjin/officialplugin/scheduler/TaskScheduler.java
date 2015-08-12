@@ -1,17 +1,16 @@
 package com.enjin.officialplugin.scheduler;
 
-import java.util.EnumSet;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
+
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
-
 public class TaskScheduler
 {
   int nexttaskid = 1;
-  ConcurrentHashMap<Integer, ScheduledTask> tasks = new ConcurrentHashMap();
+  ConcurrentHashMap<Integer, ScheduledTask> tasks = new ConcurrentHashMap<Integer, ScheduledTask>();
   
   @SubscribeEvent
   public void tick(TickEvent.ServerTickEvent event)
@@ -30,11 +29,6 @@ public class TaskScheduler
 	        task.removeTickToExecution();
 	      }
 	    }
-  }
-
-  public String getLabel()
-  {
-    return "EnjinTaskScheduler";
   }
 
   int nextTaskID() {

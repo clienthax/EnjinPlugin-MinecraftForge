@@ -11,6 +11,7 @@ class EnjinLogFormatter extends Formatter
 {
   DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss z");
 
+  @Override
   public String format(LogRecord rec)
   {
     StringBuffer buf = new StringBuffer(5);
@@ -26,11 +27,13 @@ class EnjinLogFormatter extends Formatter
     return this.dateFormat.format(resultdate);
   }
 
+  @Override
   public String getHead(Handler h)
   {
     return "Started logging the Enjin Plugin on " + calcDate(System.currentTimeMillis()) + "\n";
   }
 
+  @Override
   public String getTail(Handler h)
   {
     return "";

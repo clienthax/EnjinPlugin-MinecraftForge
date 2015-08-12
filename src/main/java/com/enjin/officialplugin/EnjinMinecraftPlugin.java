@@ -49,6 +49,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentText;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -139,7 +140,7 @@ public class EnjinMinecraftPlugin {
 	public TaskScheduler scheduler = new TaskScheduler();
 
 	public static final ExecutorService exec = Executors.newCachedThreadPool();
-	public static String minecraftport;
+	public static int minecraftport;
 	public static boolean usingSSL = true;
 	public NewKeyVerifier verifier = null;
 	public ConcurrentHashMap<String, String> playerperms = new ConcurrentHashMap();
@@ -167,11 +168,6 @@ public class EnjinMinecraftPlugin {
 			initFiles();
 			this.headlocation.loadHeads();
 			debug("Init files done.");
-			try {
-				initVariables();
-			} catch (Throwable e) {
-				e.printStackTrace();
-			}
 			debug("Initializing internal logger");
 			enjinlogger.setLevel(Level.FINEST);
 			File logsfolder = new File(getDataFolder().getAbsolutePath() + File.separator + "logs");
@@ -226,9 +222,10 @@ public class EnjinMinecraftPlugin {
 
 	@Mod.EventHandler
 	public void serverStarted(FMLServerStartedEvent event) {
+		initVariables();
 		debug("Enabling Ban lister.");
 		this.banlistertask = new BanLister(this);
-		MinecraftForge.EVENT_BUS.register(this.scheduler);
+		FMLCommonHandler.instance().bus().register(this.scheduler);
 		this.scheduler.runTaskTimerAsynchronously(this.tpstask = new MonitorTPS(this), 40, 40);
 
 		registerEvents();
@@ -256,19 +253,8 @@ public class EnjinMinecraftPlugin {
 	public void postInit(FMLPostInitializationEvent event) {
 	}
 
-	private void initVariables() throws Throwable {
-		this.s = MinecraftServer.getServer();
-		try {
-			Properties serverProperties = new Properties();
-			FileInputStream in = new FileInputStream(new File("server.properties"));
-			serverProperties.load(in);
-			in.close();
-			minecraftport = serverProperties.getProperty("server-port");
-		} catch (Throwable t) {
-			t.printStackTrace();
-			enjinlogger.severe("Couldn't find a localhost ip! Please report this problem!");
-			throw new Exception("[Enjin Minecraft Plugin] Couldn't find a localhost ip! Please report this problem!");
-		}
+	private void initVariables() {
+		minecraftport = MinecraftServer.getServer().getPort();
 	}
 
 	public void initFiles() {
@@ -331,7 +317,7 @@ public class EnjinMinecraftPlugin {
 
 	public void registerEvents() {
 		debug("Registering events.");
-		MinecraftForge.EVENT_BUS.register(this.listener);
+		FMLCommonHandler.instance().bus().register(this.listener);
 		MinecraftForge.EVENT_BUS.register(this.headListener);
 		Loader.instance();
 		if (Loader.isModLoaded("Votifier")) {
@@ -341,8 +327,10 @@ public class EnjinMinecraftPlugin {
 			MinecraftForge.EVENT_BUS.register(this.votelistener);
 			this.votifierinstalled = true;
 		}
-		if (BUY_COMMAND != null)
+		if (BUY_COMMAND != null) {
 			MinecraftForge.EVENT_BUS.register(this.shoplistener);
+			FMLCommonHandler.instance().bus().register(this.shoplistener);
+		}
 	}
 
 	public void stopTask() {
@@ -393,6 +381,7 @@ public class EnjinMinecraftPlugin {
 			}
 			con.setRequestProperty("Content-length", String.valueOf(query.length()));
 			con.getOutputStream().write(query.toString().getBytes());
+			System.out.println(query);
 			if (con.getInputStream().read() == 49) {
 				return 1;
 			}
@@ -422,7 +411,7 @@ public class EnjinMinecraftPlugin {
 
 	public static synchronized void setHash(String hash) {
 		// TODO: WHAT IS THIS?
-		hash = hash;
+		EnjinMinecraftPlugin.hash = hash;
 	}
 
 	public static synchronized String getHash() {
@@ -471,7 +460,7 @@ public class EnjinMinecraftPlugin {
 			this.unabletocontactenjin = true;
 			List<EntityPlayerMP> players = MinecraftServer.getServer().getConfigurationManager().playerEntityList;
 			for (EntityPlayerMP player : players)
-				if (ops.contains(player.getName().toLowerCase())) {
+				if (ops.contains(player.getCommandSenderName().toLowerCase())) {
 					player.addChatMessage(new ChatComponentText(ChatColor.DARK_RED
 							+ "[Enjin Minecraft Plugin] Unable to connect to enjin, please check your settings."));
 					player.addChatMessage(new ChatComponentText(ChatColor.DARK_RED

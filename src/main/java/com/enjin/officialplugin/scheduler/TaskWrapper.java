@@ -14,6 +14,7 @@ public class TaskWrapper
     this.running = false;
   }
 
+  @Override
   public synchronized void run()
   {
     while (this.running) {

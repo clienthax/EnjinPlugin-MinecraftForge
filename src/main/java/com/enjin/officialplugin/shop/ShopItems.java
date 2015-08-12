@@ -17,7 +17,7 @@ public class ShopItems
   private static String topdonatorsmoney = "Top Donator ";
   private static String topdonatorspoints = "Top Points";
 
-  ConcurrentHashMap<String, ShopItem> shopitems = new ConcurrentHashMap();
+  ConcurrentHashMap<String, ShopItem> shopitems = new ConcurrentHashMap<String, ShopItem>();
 
   public ShopItems() {
     this.shopitems.put("multiple items", new ShopItem("Multiple Items", "Multiple Items", "", "", ""));
@@ -28,7 +28,7 @@ public class ShopItems
   }
 
   public ShopItem getShopItem(String itemId) {
-    return (ShopItem)this.shopitems.get(itemId.toLowerCase());
+    return this.shopitems.get(itemId.toLowerCase());
   }
 
   public void clearShopItems() {

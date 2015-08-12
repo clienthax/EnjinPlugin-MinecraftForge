@@ -726,6 +726,7 @@ public class UpdateHeadsThread implements Runnable {
 		}
 	}
 
+	@Override
 	public synchronized void run() {
 		updateHeads();
 	}

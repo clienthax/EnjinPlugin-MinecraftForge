@@ -6,8 +6,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.enjin.officialplugin.ChatColor;
 import com.enjin.officialplugin.EnjinMinecraftPlugin;
-import com.enjin.officialplugin.events.PlayerLogoutEvent;
-import com.google.common.eventbus.Subscribe;
 
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
@@ -15,10 +13,12 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentText;
 import net.minecraftforge.event.ServerChatEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 
 public class ShopListener extends CommandBase {
-	ConcurrentHashMap<String, PlayerShopsInstance> activeshops = new ConcurrentHashMap();
-	ConcurrentHashMap<String, String> playersdisabledchat = new ConcurrentHashMap();
+	ConcurrentHashMap<String, PlayerShopsInstance> activeshops = new ConcurrentHashMap<String, PlayerShopsInstance>();
+	ConcurrentHashMap<String, String> playersdisabledchat = new ConcurrentHashMap<String, String>();
 
 	public void removePlayer(String player) {
 		player = player.toLowerCase();
@@ -26,28 +26,28 @@ public class ShopListener extends CommandBase {
 		this.activeshops.remove(player);
 	}
 
-	@Subscribe
+	@SubscribeEvent
 	public void playerChatEvent(ServerChatEvent event) {
 		if (event.isCanceled()) {
 			return;
 		}
 
-		if (this.playersdisabledchat.containsKey(event.player.getName().toLowerCase())) {
-			this.playersdisabledchat.remove(event.player.getName().toLowerCase());
+		if (this.playersdisabledchat.containsKey(event.player.getCommandSenderName().toLowerCase())) {
+			this.playersdisabledchat.remove(event.player.getCommandSenderName().toLowerCase());
 		}
 
 		if (!this.playersdisabledchat.isEmpty()) {
 			List<EntityPlayerMP> playerlist = MinecraftServer.getServer().getConfigurationManager().playerEntityList;
 			for (EntityPlayerMP recipient : playerlist) {
-				if (!this.playersdisabledchat.containsKey(recipient.getName().toLowerCase()))
-					recipient.addChatComponentMessage(event.component);
+				if (!this.playersdisabledchat.containsKey(recipient.getCommandSenderName().toLowerCase()))
+					recipient.addChatComponentMessage(event.getComponent());
 			}
 		}
 	}
 
-	@Subscribe
-	public void onPlayerDisconnect(PlayerLogoutEvent event) {
-		String player = event.entityPlayer.getName().toLowerCase();
+	@SubscribeEvent
+	public void onPlayerDisconnect(PlayerEvent.PlayerLoggedOutEvent event) {
+		String player = event.player.getCommandSenderName().toLowerCase();
 		this.playersdisabledchat.remove(player);
 		this.activeshops.remove(player);
 	}
@@ -90,11 +90,13 @@ public class ShopListener extends CommandBase {
 		sendPlayerPage(player, ShopUtils.getItemDetailsPage(shops.getActiveShop(), item));
 	}
 
-	public String getName() {
+	@Override
+	public String getCommandName() {
 		return EnjinMinecraftPlugin.BUY_COMMAND;
 	}
 
-	public void execute(ICommandSender icommandsender, String[] args) {
+	@Override
+	public void processCommand(ICommandSender icommandsender, String[] args) {
 		EntityPlayerMP player = null;
 		if ((icommandsender instanceof EntityPlayerMP))
 			player = (EntityPlayerMP) icommandsender;
@@ -110,14 +112,14 @@ public class ShopListener extends CommandBase {
 				dispatchThread.start();
 			} else {
 				player.addChatMessage(new ChatComponentText(ChatColor.RED + "Fetching your shop history information, please wait..."));
-				Thread dispatchThread = new Thread(new PlayerHistoryGetter(this, player, player.getName()));
+				Thread dispatchThread = new Thread(new PlayerHistoryGetter(this, player, player.getCommandSenderName()));
 				dispatchThread.start();
 			}
 			return;
 		}
 
-		if (this.activeshops.containsKey(player.getName().toLowerCase())) {
-			PlayerShopsInstance psi = (PlayerShopsInstance) this.activeshops.get(player.getName().toLowerCase());
+		if (this.activeshops.containsKey(player.getCommandSenderName().toLowerCase())) {
+			PlayerShopsInstance psi = (PlayerShopsInstance) this.activeshops.get(player.getCommandSenderName().toLowerCase());
 
 			if (psi.getRetrievalTime() + 600000L < System.currentTimeMillis()) {
 				player.addChatMessage (new ChatComponentText(ChatColor.RED + "Fetching shop information, please wait..."));
@@ -125,7 +127,7 @@ public class ShopListener extends CommandBase {
 				dispatchThread.start();
 				return;
 			}
-			this.playersdisabledchat.put(player.getName().toLowerCase(), player.getName());
+			this.playersdisabledchat.put(player.getCommandSenderName().toLowerCase(), player.getCommandSenderName());
 
 			if (args.length == 0) {
 				if (psi.getActiveShop() == null) {
@@ -228,9 +230,10 @@ public class ShopListener extends CommandBase {
 			ops.add(s);
 		}
 		
-		return ops.contains(player.getName().toLowerCase());
+		return ops.contains(player.getCommandSenderName().toLowerCase());
 	}
 
+	@Override
 	public String getCommandUsage(ICommandSender icommandsender) {
 		return "/" + EnjinMinecraftPlugin.BUY_COMMAND;
 	}

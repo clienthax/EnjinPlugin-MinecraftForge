@@ -22,6 +22,7 @@ public class BanLister
       this.currentbannedplayers.put(player.toLowerCase(), "");
   }
 
+  @Override
   public void run()
   {
     EnjinMinecraftPlugin.debug("Scanning banned player list");

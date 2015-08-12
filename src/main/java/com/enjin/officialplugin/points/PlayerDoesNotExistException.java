@@ -10,6 +10,7 @@ public class PlayerDoesNotExistException extends Exception
     this.message = error;
   }
 
+  @Override
   public String getMessage()
   {
     return this.message;

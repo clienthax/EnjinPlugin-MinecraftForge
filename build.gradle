@@ -23,8 +23,7 @@ archivesBaseName = "EnjinMinecraftForgePlugin"
 
 minecraft {
     version = "1.8-11.14.3.1502"
-    runDir = "eclipse"
-    mappings = "snapshot_20141130"
+    mappings = "snapshot_20150812"
 }
 
 dependencies {

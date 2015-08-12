@@ -62,6 +62,7 @@ public class PeriodicEnjinTask implements Runnable {
 				(EnjinMinecraftPlugin.usingSSL ? "https" : "http") + EnjinMinecraftPlugin.apiurl + "minecraft-sync");
 	}
 
+	@Override
 	public void run() {
 		if ((this.firstrun) && (EnjinMinecraftPlugin.usingSSL) && (!this.plugin.testHTTPSconnection())) {
 			EnjinMinecraftPlugin.usingSSL = false;

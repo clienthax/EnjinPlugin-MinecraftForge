@@ -13,6 +13,7 @@ public class DelayedPlayerPermsUpdate implements Runnable
     this.listener = listener;
   }
 
+  @Override
   public void run()
   {
     this.listener.updatePlayerRanks(this.player);

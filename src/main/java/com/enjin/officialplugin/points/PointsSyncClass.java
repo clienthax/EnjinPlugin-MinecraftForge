@@ -14,6 +14,7 @@ class PointsSyncClass
     this.type = type;
   }
 
+  @Override
   public synchronized void run()
   {
     try {

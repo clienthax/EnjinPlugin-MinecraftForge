@@ -27,6 +27,7 @@ public class PlayerShopGetter
     this.player = player;
   }
 
+  @Override
   public void run()
   {
     StringBuilder builder = new StringBuilder();
@@ -48,7 +49,7 @@ public class PlayerShopGetter
       con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 
       builder.append("authkey=" + encode(EnjinMinecraftPlugin.hash));
-      builder.append("&player=" + encode(this.player.getName()));
+      builder.append("&player=" + encode(this.player.getCommandSenderName()));
       con.setRequestProperty("Content-Length", String.valueOf(builder.length()));
       EnjinMinecraftPlugin.debug("Sending content: \n" + builder.toString());
       con.getOutputStream().write(builder.toString().getBytes());
@@ -61,8 +62,8 @@ public class PlayerShopGetter
 
       String json = parseInput(in);
       PlayerShopsInstance shops = ShopUtils.parseShopsJSON(json);
-      this.listener.activeshops.put(this.player.getName().toLowerCase(), shops);
-      this.listener.playersdisabledchat.put(this.player.getName().toLowerCase(), this.player.getName());
+      this.listener.activeshops.put(this.player.getCommandSenderName().toLowerCase(), shops);
+      this.listener.playersdisabledchat.put(this.player.getCommandSenderName().toLowerCase(), this.player.getCommandSenderName());
       this.listener.sendPlayerInitialShopData(this.player, shops);
       return;
     } catch (SocketTimeoutException e) {

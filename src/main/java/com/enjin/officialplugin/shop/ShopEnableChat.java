@@ -16,12 +16,14 @@ public class ShopEnableChat extends CommandBase
     this.sl = listen;
   }
 
-  public String getName()
+  @Override
+  public String getCommandName()
   {
     return "ec";
   }
 
-  public void execute(ICommandSender icommandsender, String[] astring)
+  @Override
+  public void processCommand(ICommandSender icommandsender, String[] astring)
   {
     EntityPlayerMP player = null;
     if ((icommandsender instanceof EntityPlayerMP))
@@ -30,12 +32,13 @@ public class ShopEnableChat extends CommandBase
       return;
     }
 
-    if (this.sl.playersdisabledchat.containsKey(player.getName().toLowerCase())) {
-      this.sl.playersdisabledchat.remove(player.getName().toLowerCase());
+    if (this.sl.playersdisabledchat.containsKey(player.getCommandSenderName().toLowerCase())) {
+      this.sl.playersdisabledchat.remove(player.getCommandSenderName().toLowerCase());
       player.addChatMessage(new ChatComponentText(ChatColor.GREEN + "Your chat is now enabled."));
     }
   }
 
+  @Override
   public String getCommandUsage(ICommandSender icommandsender)
   {
     return "/ec";

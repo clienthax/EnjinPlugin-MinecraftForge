@@ -24,6 +24,7 @@ public class NewKeyVerifier
     this.pluginboot = pluginboot;
   }
 
+  @Override
   public synchronized void run()
   {
     if (this.pluginboot)

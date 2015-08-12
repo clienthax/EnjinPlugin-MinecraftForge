@@ -26,7 +26,7 @@ public class ServerShop extends AbstractShopSuperclass
   boolean simpleitems = false;
   boolean simplecategories = false;
 
-  ArrayList<AbstractShopSuperclass> items = new ArrayList();
+  ArrayList<AbstractShopSuperclass> items = new ArrayList<AbstractShopSuperclass>();
 
   ArrayList<ArrayList<String>> pages = null;
 
@@ -38,10 +38,12 @@ public class ServerShop extends AbstractShopSuperclass
     this.containertype = containertype;
   }
 
+  @Override
   public void setType(Type type) {
     this.containertype = type;
   }
 
+  @Override
   public Type getType() {
     return this.containertype;
   }
@@ -54,10 +56,12 @@ public class ServerShop extends AbstractShopSuperclass
     return this.simpleitems;
   }
 
+  @Override
   public String getName() {
     return this.name;
   }
 
+  @Override
   public void addItem(AbstractShopSuperclass item)
     throws ItemTypeNotSupported
   {
@@ -75,17 +79,20 @@ public class ServerShop extends AbstractShopSuperclass
     }
   }
 
+  @Override
   public ArrayList<AbstractShopSuperclass> getItems() {
     return this.items;
   }
 
+  @Override
   public AbstractShopSuperclass getItem(int i) {
     try {
-      return (AbstractShopSuperclass)this.items.get(i); } catch (Exception e) {
+      return this.items.get(i); } catch (Exception e) {
     }
     return null;
   }
 
+  @Override
   public String getInfo()
   {
     return this.info;
@@ -223,28 +230,32 @@ public class ServerShop extends AbstractShopSuperclass
     this.simplecategories = simplecategories;
   }
 
+  @Override
   public ShopItemAdder getParentCategory()
   {
     return null;
   }
 
+  @Override
   public void setParentCategory(ShopItemAdder category)
   {
   }
 
+  @Override
   public void setPages(ArrayList<ArrayList<String>> pages)
   {
     this.pages = pages;
   }
 
+  @Override
   public ArrayList<ArrayList<String>> getPages()
   {
     return this.pages;
   }
 
-  public static enum Type
+  public enum Type
   {
     Category, 
-    Item;
+    Item
   }
 }

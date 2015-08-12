@@ -20,7 +20,7 @@ public class EMPListener
 
 	public void updatePlayerRanks(EntityPlayer p) 
 	{
-		updatePlayerRanks(p.getName());
+		updatePlayerRanks(p.getCommandSenderName());
 	}
 
 	public void updatePlayerRanks(String p) 
@@ -39,7 +39,7 @@ public class EMPListener
 			ops.add(s);
 		}
 		
-		if (!ops.contains(p.getName().toLowerCase())) 
+		if (!ops.contains(p.getCommandSenderName().toLowerCase()))
 		{
 			return;
 		}

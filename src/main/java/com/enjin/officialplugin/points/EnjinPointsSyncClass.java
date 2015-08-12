@@ -22,6 +22,7 @@ public class EnjinPointsSyncClass
     this.sender = sender;
   }
 
+  @Override
   public synchronized void run()
   {
     try {
@@ -44,7 +45,7 @@ public class EnjinPointsSyncClass
       this.sender.addChatMessage(new ChatComponentText(ChatColor.DARK_GREEN + "Successfully " + addremove + " " + this.points + " points to player " + this.playername + "! The player now has " + amount + " points."));
       EntityPlayer p = PlayerUtil.getPlayer(this.playername);
       if (p != null)
-        p.addChatMessage(new ChatComponentText(ChatColor.GOLD + this.sender.getName() + ChatColor.YELLOW + " just " + toplayer + " You now have " + ChatColor.DARK_GREEN + amount + " points."));
+        p.addChatMessage(new ChatComponentText(ChatColor.GOLD + this.sender.getCommandSenderName() + ChatColor.YELLOW + " just " + toplayer + " You now have " + ChatColor.DARK_GREEN + amount + " points."));
     }
     catch (NumberFormatException e) {
       this.sender.addChatMessage(new ChatComponentText(ChatColor.DARK_RED + "Enjin Error: Not a valid number!"));

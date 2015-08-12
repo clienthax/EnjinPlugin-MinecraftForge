@@ -30,6 +30,7 @@ public class PlayerHistoryGetter
     this.historyplayer = historyplayer;
   }
 
+  @Override
   public void run()
   {
     StringBuilder builder = new StringBuilder();

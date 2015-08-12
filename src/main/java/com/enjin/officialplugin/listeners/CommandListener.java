@@ -37,11 +37,12 @@ public class CommandListener extends CommandBase
 	}
 
 	@Override
-	public String getName()
+	public String getCommandName()
 	{
 		return "enjin";
 	}
 
+	@Override
 	public List getCommandAliases()
 	{
 		LinkedList aliases = new LinkedList();
@@ -50,14 +51,14 @@ public class CommandListener extends CommandBase
 	}
 
 	@Override
-	public void execute(ICommandSender sender, String[] args)
+	public void processCommand(ICommandSender sender, String[] args)
 	{
 		ArrayList<String> ops = new ArrayList<String>();
 		for (String name : MinecraftServer.getServer().getConfigurationManager().getOppedPlayerNames())
 		{
 			ops.add(name);
 		}
-		if (((sender instanceof EntityPlayerMP)) && (!ops.contains(sender.getName())))
+		if (((sender instanceof EntityPlayerMP)) && (!ops.contains(sender.getCommandSenderName())))
 		{
 			return;
 		}
@@ -318,7 +319,7 @@ public class CommandListener extends CommandBase
 						else
 						{
 							sendMessage(ChatColor.GOLD + "Please wait as we retrieve your points balance...", sender);
-							RetrievePointsSyncClass mthread = new RetrievePointsSyncClass(sender, player.getName(), true);
+							RetrievePointsSyncClass mthread = new RetrievePointsSyncClass(sender, player.getCommandSenderName(), true);
 							Thread dispatchThread = new Thread(mthread);
 							dispatchThread.start();
 						}
@@ -394,6 +395,7 @@ public class CommandListener extends CommandBase
 				sender.addChatMessage(new ChatComponentText(message));
 	}
 
+	@Override
 	public String getCommandUsage(ICommandSender icommandsender)
 	{
 		return "/enjin help";

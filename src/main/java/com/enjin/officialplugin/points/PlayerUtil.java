@@ -11,7 +11,7 @@ public class PlayerUtil
   {
     for (Iterator i$ = MinecraftServer.getServer().getConfigurationManager().playerEntityList.iterator(); i$.hasNext(); ) { Object o = i$.next();
       EntityPlayer player = (EntityPlayer)o;
-      if (player.getName().equalsIgnoreCase(playerName)) {
+      if (player.getCommandSenderName().equalsIgnoreCase(playerName)) {
         return player;
       }
     }

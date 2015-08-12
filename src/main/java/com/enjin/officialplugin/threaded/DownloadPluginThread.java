@@ -26,6 +26,7 @@ public class DownloadPluginThread
     this.plugin = plugin;
   }
 
+  @Override
   public void run()
   {
     File tempfile = new File(this.downloadlocation + File.separator + "EnjinMinecraftPlugin.zip.part");

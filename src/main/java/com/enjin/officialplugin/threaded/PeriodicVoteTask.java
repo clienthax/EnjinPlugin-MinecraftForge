@@ -35,6 +35,7 @@ public class PeriodicVoteTask implements Runnable {
 				+ "minecraft-votifier");
 	}
 
+	@Override
 	public void run()
 	{
 		if (this.plugin.playervotes.size() > 0)

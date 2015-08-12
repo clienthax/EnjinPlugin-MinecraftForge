@@ -78,7 +78,7 @@ public class HeadListener
 		for(String str : MinecraftServer.getServer().getConfigurationManager().getOppedPlayerNames())
 			ops.add(str);
 
-		if (!ops.contains(event.entityPlayer.getName().toLowerCase())) {
+		if (!ops.contains(event.entityPlayer.getCommandSenderName().toLowerCase())) {
 			if (((block instanceof TileEntitySkull)) || ((block instanceof TileEntitySign))) {
 				Location loc = new Location(world, event.pos.getX(), event.pos.getY(), event.pos.getZ());
 				if (this.plugin.headlocation.hasHeadHere(loc)) {

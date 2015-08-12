@@ -31,6 +31,7 @@ public class ReportMakerThread
     this.sender = sender;
   }
 
+  @Override
   public synchronized void run()
   {
     this.builder.append("\nLast Severe error message: \n");
